@@ -11,12 +11,14 @@ import tempfile
 
 app = Flask(__name__)
 
+
 class pathTracker(object):
     def __init__(self, videoName="default video"):
         self.video_size = (960, 540)
         self.box_color = (255, 255, 255)
         self.path_color = (0, 0, 255)
-        self.tracker_types = ['BOOSTING', 'MIL', 'KCF', 'TLD', 'MEDIANFLOW', 'GOTURN', 'Dlib_Tracker', 'CamShift', 'Template_Matching']
+        self.tracker_types = ['BOOSTING', 'MIL', 'KCF', 'TLD', 'MEDIANFLOW', 'GOTURN', 'Dlib_Tracker', 'CamShift',
+                              'Template_Matching']
         self.tracker_type = self.tracker_types[2]
         self.cap = cv2.VideoCapture(videoName)
         if not self.cap.isOpened():
@@ -41,7 +43,7 @@ class pathTracker(object):
         elif self.tracker_type == 'Dlib_Tracker':
             self.tracker = dlib.correlation_tracker()
 
-    def onmouse(self,event, x, y, flags, param):
+    def onmouse(self, event, x, y, flags, param):
         """
         On mouse
         """
@@ -59,29 +61,30 @@ class pathTracker(object):
             # box is set up here
             self.track_window = self.selection
             self.selection = None
-          
-    def drawing(self,image,x,y,w,h,timer):
+
+    def drawing(self, image, x, y, w, h, timer):
         """
         Drawing the bound, center point and path for tracker in real-time
         """
-        center_point_x = int(x + 0.5*w)
-        center_point_y = int(y + 0.5*h)
-        center = (center_point_x,center_point_y)
+        center_point_x = int(x + 0.5 * w)
+        center_point_y = int(y + 0.5 * h)
+        center = (center_point_x, center_point_y)
         fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
         self.points.appendleft(center)
         # tracker's bound
-        cv2.rectangle(image, (int(x),int(y)), (int(x+w),int(y+h)), self.box_color, 2)
+        cv2.rectangle(image, (int(x), int(y)), (int(x + w), int(y + h)), self.box_color, 2)
         # center point
         cv2.circle(image, center, 2, self.path_color, -1)
         # coordinate
-        cv2.putText(image,"(X=" + str(center_point_x) + ",Y=" + str(center_point_y) + ")", (int(x),int(y)),cv2.FONT_HERSHEY_SIMPLEX, 0.6, self.path_color, 2)
+        cv2.putText(image, "(X=" + str(center_point_x) + ",Y=" + str(center_point_y) + ")", (int(x), int(y)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, self.path_color, 2)
         # fps
-        cv2.putText(image,"FPS=" + str(int(fps)), (40,20),cv2.FONT_HERSHEY_SIMPLEX, 0.75, self.path_color, 2)
+        cv2.putText(image, "FPS=" + str(int(fps)), (40, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75, self.path_color, 2)
         for i in range(1, len(self.points)):
-            if self.points[i-1] is None or self.points[i] is None:
+            if self.points[i - 1] is None or self.points[i] is None:
                 continue
             # path of center point
-            cv2.line(image, self.points[i-1], self.points[i], self.path_color,2)
+            cv2.line(image, self.points[i - 1], self.points[i], self.path_color, 2)
 
     def start_tracking(self):
         i = 0
@@ -161,4 +164,4 @@ def track_barbell():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=8080)
+    app.run(debug=True)
